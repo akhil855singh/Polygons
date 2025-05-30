@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    ports:
+      - "6010:6010"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules  # Prevents the host's node_modules from being mounted
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://mongo:27017/polygon-db  # Mongo URI for connecting to MongoDB
+    command: ["node", "--max-old-space-size=4096", "server.js"]  # Increase memory to 4GB
+    depends_on:
+      - mongo  # Ensure the app starts after MongoDB is ready
+
+  mongo:
+    image: mongo:latest  # Use the latest MongoDB image
+    container_name: mongo
+    volumes:
+      - mongo-data:/data/db  # Persist MongoDB data in Docker volumes
+    ports:
+      - "27017:27017"  # Expose MongoDB on port 27017
+
+volumes:
+  mongo-data:  # Define volume to persist MongoDB data

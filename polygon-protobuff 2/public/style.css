@@ -1,0 +1,38 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* The container div that holds the left and right sections */
+.container {
+    display: flex;
+    height: 100vh; /* Make sure the container takes up the full height of the viewport */
+    width: 100%;
+}
+
+/* Left side (with h1) */
+.left-side {
+    width: 30%; /* Left side takes up 30% of the width */
+    background-color: #f0f0f0; /* Light gray background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    position: relative; /* Ensure it stays in place */
+}
+
+/* Right side (with the map) */
+.right-side {
+    width: 70%; /* Right side takes up 70% of the width */
+    height: 100vh; /* Make sure the map takes up the full height */
+    background-color: #e0e0e0; /* Light gray background */
+    position: relative;
+}
+
+/* Optional: Make sure the map container is responsive */
+#map {
+    width: 100%;
+    height: 100%;
+}

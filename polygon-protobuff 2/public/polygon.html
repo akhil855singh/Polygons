@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polygon Upload</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Optional icons -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        .upload-form, .polygon-list {
+            margin-top: 30px;
+        }
+        .polygon-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .polygon-list th, .polygon-list td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .polygon-list th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input[type="file"] {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Polygon Upload and Management</h1>
+
+    <!-- Upload Form -->
+    <div class="upload-form">
+        <h3>Upload a Polygon File</h3>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="polygonFile" name="polygonFile" accept=".json" required />
+            <button type="submit">Upload Polygon</button>
+        </form>
+    </div>
+
+    <!-- List of Uploaded Polygons -->
+    <div class="polygon-list">
+        <h3>Uploaded Polygons</h3>
+        <table id="polygonTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Polygons will be listed here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // API URL for the server (adjust accordingly)
+    const API_URL = 'http://localhost:6010/upload'; 
+
+    // Handle polygon file upload
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData();
+        const file = document.getElementById('polygonFile').files[0];
+        formData.append('polygonFile', file);
+
+        // Send file to the server
+        fetch("http://localhost:6010/upload-polygon", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Polygon uploaded successfully');
+            fetchPolygonList();  // Reload the list after upload
+        })
+        .catch(error => {
+            alert('Error uploading polygon: ' + error.message);
+        });
+    });
+
+    // Fetch list of uploaded polygons from the server
+    function fetchPolygonList() {
+        fetch('http://localhost:6010/polygons') // Replace with actual route to get polygons
+            .then(response => response.json())
+            .then(polygons => {
+                const tableBody = document.getElementById('polygonTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';  // Clear existing rows
+
+                polygons.forEach(polygon => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${polygon.id}</td>
+                        <td>${polygon.status}</td>
+                        <td><button onclick="deletePolygon('${polygon.id}')">Delete</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching polygon list:', error);
+            });
+    }
+
+    // Delete a polygon
+    function deletePolygon(id) {
+        if (confirm('Are you sure you want to delete this polygon?')) {
+            fetch(`http://localhost:6010/polygons/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(() => {
+                alert('Polygon deleted successfully');
+                fetchPolygonList(); // Reload the list after deletion
+            })
+            .catch(error => {
+                alert('Error deleting polygon: ' + error.message);
+            });
+        }
+    }
+
+    // Load the polygon list on page load
+    window.onload = function() {
+        fetchPolygonList();
+    };
+</script>
+
+</body>
+</html>
